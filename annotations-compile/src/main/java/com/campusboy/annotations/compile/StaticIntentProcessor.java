@@ -1,5 +1,6 @@
-package com.campusboy.annotations;
+package com.campusboy.annotations.compile;
 
+import com.campusboy.annotations.StaticIntentKey;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
@@ -42,6 +43,39 @@ public class StaticIntentProcessor extends AbstractProcessor {
     public Set<String> getSupportedAnnotationTypes() {
         // 只处理 StaticIntentKey 注解
         return Collections.singleton(StaticIntentKey.class.getCanonicalName());
+    }
+
+    @Override
+    public boolean process(Set<? extends TypeElement> set, RoundEnvironment re) {
+        // StaticMapper的bind方法
+        MethodSpec.Builder method = MethodSpec.methodBuilder("bind")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                .addParameter(activityClassName, "activity");
+
+        // 查找所有的需要注入的类描述
+        List<InjectDesc> injectDescs = findInjectDesc(set, re);
+
+        // log一下
+        System.out.println(injectDescs);
+
+        for (int i1 = 0; i1 < injectDescs.size(); i1++) {
+            InjectDesc injectDesc = injectDescs.get(i1);
+
+            // 创建需要注解的类的Java文件，如上面所述的 IntentActivity$Binder
+            TypeName injectedType = createInjectClassFile(injectDesc);
+            TypeName activityName = typeName(injectDesc.activityName);
+
+            // $T导入类型
+            // 生成绑定分发的代码
+            method.addCode((i1 == 0 ? "" : " else ") + "if (activity instanceof $T) {\n", activityName);
+            method.addCode("\t$T binder = new $T();\n", injectedType, injectedType);
+            method.addCode("\tbinder.bind((" + activityName + ") activity);\n", activityName, activityName);
+            method.addCode("}");
+        }
+        // 创建StaticMapper类
+        createJavaFile("com.campusboy.annotationtest", "StaticMapper", method.build());
+
+        return false;
     }
 
     private List<InjectDesc> findInjectDesc(Set<? extends TypeElement> set, RoundEnvironment re) {
@@ -103,39 +137,6 @@ public class StaticIntentProcessor extends AbstractProcessor {
         }
 
         return injectDescList;
-    }
-
-    @Override
-    public boolean process(Set<? extends TypeElement> set, RoundEnvironment re) {
-        // StaticMapper的bind方法
-        MethodSpec.Builder method = MethodSpec.methodBuilder("bind")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                .addParameter(activityClassName, "activity");
-
-        // 查找所有的需要注入的类描述
-        List<InjectDesc> injectDescs = findInjectDesc(set, re);
-
-        // log一下
-        System.out.println(injectDescs);
-
-        for (int i1 = 0; i1 < injectDescs.size(); i1++) {
-            InjectDesc injectDesc = injectDescs.get(i1);
-
-            // 创建需要注解的类的Java文件，如上面所述的 IntentActivity$Binder
-            TypeName injectedType = createInjectClassFile(injectDesc);
-            TypeName activityName = typeName(injectDesc.activityName);
-
-            // $T导入类型
-            // 生成绑定分发的代码
-            method.addCode((i1 == 0 ? "" : " else ") + "if (activity instanceof $T) {\n", activityName);
-            method.addCode("\t$T binder = new $T();\n", injectedType, injectedType);
-            method.addCode("\tbinder.bind((" + activityName + ") activity);\n", activityName, activityName);
-            method.addCode("}");
-        }
-        // 创建StaticMapper类
-        createJavaFile("com.campusboy.annotationtest", "StaticMapper", method.build());
-
-        return false;
     }
 
     private void createJavaFile(String pkg, String classShortName, MethodSpec... method) {
@@ -217,18 +218,11 @@ public class StaticIntentProcessor extends AbstractProcessor {
         return ClassName.get(packageD, name);
     }
 
-    public static class InjectDesc {
-        // IntentActivity
-        public String activityName;
-
-        // {staticName, staticAge}
-        public String[] fieldNames;
-
-        // {java.lang.String, java.lang.Integer}
-        public String[] fieldTypeNames;
-
-        // {key_name, key_age}
-        public String[] intentNames;
+    private static class InjectDesc {
+        private String activityName;
+        private String[] fieldNames;
+        private String[] fieldTypeNames;
+        private String[] intentNames;
 
         @Override
         public String toString() {

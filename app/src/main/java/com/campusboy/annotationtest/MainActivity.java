@@ -21,15 +21,25 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        TextView textHello = findViewById(R.id.text_hello);
 
         getIntent().putExtra("dynamic_data", "动态注入");
         getIntent().putExtra("static_data", "静态注入");
 
-        StaticUtil.inject(this);
-        DynamicUtil.inject(this);
-        TextView textHello = findViewById(R.id.text_hello);
-        textHello.setText(dynamicData);
+        long start = System.currentTimeMillis();
+        for (int index = 0; index < 1000; index++) {
+            StaticUtil.inject(this);
+        }
+        long duration = System.currentTimeMillis() - start;
+        textHello.setText(staticData + ": " + duration);
+
+        start = System.currentTimeMillis();
+        for (int index = 0; index < 1000; index++) {
+            DynamicUtil.inject(this);
+        }
+        duration = System.currentTimeMillis() - start;
+
         textHello.append("\n");
-        textHello.append(staticData + "");
+        textHello.append(dynamicData + ": " + duration);
     }
 }
