@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Target(ElementType.FIELD)
-@Retention(RetentionPolicy.SOURCE)
-public @interface StaticIntentKey {
-    String value();
+@Retention(RetentionPolicy.RUNTIME)
+public @interface StringIntentKey {
+    String value() default "";
 }

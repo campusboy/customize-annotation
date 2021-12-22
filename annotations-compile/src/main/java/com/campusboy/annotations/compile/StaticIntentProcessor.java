@@ -1,6 +1,6 @@
 package com.campusboy.annotations.compile;
 
-import com.campusboy.annotations.StaticIntentKey;
+import com.campusboy.annotations.StringIntentKey;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
@@ -41,8 +41,7 @@ public class StaticIntentProcessor extends AbstractProcessor {
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
-        // 只处理 StaticIntentKey 注解
-        return Collections.singleton(StaticIntentKey.class.getCanonicalName());
+        return Collections.singleton(StringIntentKey.class.getCanonicalName());
     }
 
     @Override
@@ -83,7 +82,7 @@ public class StaticIntentProcessor extends AbstractProcessor {
         Map<TypeElement, List<String[]>> targetClassMap = new HashMap<>();
 
         // 先获取所有被StaticIntentKey标示的元素
-        Set<? extends Element> elements = re.getElementsAnnotatedWith(StaticIntentKey.class);
+        Set<? extends Element> elements = re.getElementsAnnotatedWith(StringIntentKey.class);
         for (Element element : elements) {
             // 只关心类别是属性的元素
             if (element.getKind() != ElementKind.FIELD) {
@@ -109,7 +108,7 @@ public class StaticIntentProcessor extends AbstractProcessor {
             // 被注解的值的类型，如String，int
             String fieldTypeName = element.asType().toString();
             // 注解本身的值，如key_name
-            String intentName = element.getAnnotation(StaticIntentKey.class).value();
+            String intentName = element.getAnnotation(StringIntentKey.class).value();
 
             String[] names = new String[]{fieldName, fieldTypeName, intentName};
             nameList.add(names);

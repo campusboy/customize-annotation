@@ -2,8 +2,9 @@ package com.campusboy.annotationtest.Utils;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.util.Log;
 
-import com.campusboy.annotations.DynamicIntentKey;
+import com.campusboy.annotations.StringIntentKey;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -13,15 +14,14 @@ public class DynamicUtil {
         Intent intent = activity.getIntent();
         // 反射
         for (Field field : activity.getClass().getDeclaredFields()) {
-            if (field.isAnnotationPresent(DynamicIntentKey.class)) {
-
+            if (field.isAnnotationPresent(StringIntentKey.class)) {
                 // 获取注解
-                DynamicIntentKey annotation = field.getAnnotation(DynamicIntentKey.class);
+                StringIntentKey annotation = field.getAnnotation(StringIntentKey.class);
                 String intentKey = annotation.value();
-
+                Log.d("DynamicUtil", "intentKey = " + intentKey);
                 // 读取实际的IntentExtra值
                 Serializable serializable = intent.getSerializableExtra(intentKey);
-
+                Log.d("serializable", "serializable = " + serializable);
                 if (serializable == null) {
 
                     if (field.getType().isAssignableFrom(String.class)) {
