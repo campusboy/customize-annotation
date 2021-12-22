@@ -30,8 +30,8 @@ import javax.tools.Diagnostic;
 @AutoService(Processor.class)
 public class StaticIntentProcessor extends AbstractProcessor {
 
-    private TypeName activityClassName = ClassName.get("android.app", "Activity").withoutAnnotations();
-    private TypeName intentClassName = ClassName.get("android.content", "Intent").withoutAnnotations();
+    private final TypeName activityClassName = ClassName.get("android.app", "Activity").withoutAnnotations();
+    private final TypeName intentClassName = ClassName.get("android.content", "Intent").withoutAnnotations();
 
     @Override
     public SourceVersion getSupportedSourceVersion() {

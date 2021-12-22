@@ -1,9 +1,11 @@
 package com.campusboy.annotationtest;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.campusboy.annotations.DynamicIntentKey;
 import com.campusboy.annotations.StaticIntentKey;
@@ -17,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
     @StaticIntentKey("static_data")
     String staticData;
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
